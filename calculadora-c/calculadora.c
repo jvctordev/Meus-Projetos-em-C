@@ -1,112 +1,112 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <matemática.h>
+#include <math.h>
 
-vazio LimparBuffer() {
- int c;
-    enquanto ((c = getchar()) != '\n' && c!= EOF);
+void limparBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 }
-vazio limparTela() {
+void limparTela() {
     #ifdef _WIN32
-        sistema("cls");
+        system("cls");
     #else
-        sistema("claro");
+        system("clear");
     #endif
 }
 
-int principal(){
+int main(){
 
- ARQUIVO *histórico = abrir("Histórico.txt", "a");
-    se (histórico == NULO)
+    FILE *historico = fopen("Historico.txt", "a");
+    if (historico == NULL)
     {
-        imprimirf("Erro ao abrir arquivo!\n");
-    retornar 1;
+        printf("Erro ao abrir arquivo!\n");
+    return 1;
     }
     
 
- flutuar a;
- flutuador b;
- soma flutuante;
- flutuador mult;
- flutuar subtr;
- int opcao;
- char contínuo;
-    imprimirf(" \n ======BEM VINDO A CALCULADORA ONLINE====== \n");
-    imprimirf("\nPressione ENTER para iniciar\n");
-    LimparBuffer();
+    float a;
+    float b;
+    float soma;
+    float mult;
+    float subtr;
+    int opcao;
+    char continuar;
+    printf(" \n ======BEM VINDO A CALCULADORA ONLINE====== \n");
+    printf("\nPressione ENTER para iniciar\n");
+    limparBuffer();
     limparTela();
     
-    fazer{
+    do{
 
-    imprimirf("Insira o primeiro número:");
+    printf("Insira o primeiro numero:  ");
     scanf("%f", &a);
-    LimparBuffer();
+    limparBuffer();
 
-    imprimirf("Insira o segundo número:");
+    printf("Insira o segundo numero:  ");
     scanf("%f", &b);
-    LimparBuffer();
+    limparBuffer();
 
-    imprimirf("Escola uma operação:\n");
-    imprimirf("1 - Soma\n");
-    imprimirf("2 - Subtracao\n");
-    imprimirf("3 - Multiplicação\n");
-    imprimirf("4 - Divisão\n");
-    imprimirf("5- Raiz Quadrada\n");
-    imprimirf("(Raiz usa apenas o primeiro número)\n");
-    imprimirf("6- Potência:\n");
-    imprimirf("Opcao: ");
+    printf("Escolha uma operacao:\n");
+    printf("1 - Soma\n");
+    printf("2 - Subtracao\n");
+    printf("3 - Multiplicacao\n");
+    printf("4 - Divisao\n");
+    printf("5- Raiz Quadrada\n");
+    printf("(Raiz usa apenas o primeiro numero)\n");
+    printf("6- Potencia:\n");
+    printf("Opcao: ");
     scanf("%d", &opcao);
-    LimparBuffer();
+    limparBuffer();
 
-    interruptor (opcao)
+    switch (opcao)
     {
- caso 1:
- soma = a + b;
-        imprimirf("Resultado: %.2f\n", soma);
-        fprintf(histórico, "%.2f + %.2f = %.2f\n", a, b, soma);
- quebrar;
- caso 2:
- subtr = a - b;
-        imprimirf("Resultado: %.2f\n", subtr);
-        fprintf(histórico, "%.2f - %.2f = %.2f\n", a, b, subtr);
- quebrar;
- caso 3:
- mult = a * b;
-        imprimirf("Resultado: %.2f\n", multiplicador);
-        fprintf(histórico, "%.2f * %.2f = %.2f\n", a, b, mult);
- quebrar;
- caso 4:
-    se (b == 0)
+    case 1:
+        soma = a + b;
+        printf("Resultado: %.2f\n", soma);
+        fprintf(historico, "%.2f + %.2f = %.2f\n", a, b, soma);
+        break;
+    case 2:
+        subtr = a - b;
+        printf("Resultado: %.2f\n", subtr);
+        fprintf(historico, "%.2f - %.2f = %.2f\n", a, b, subtr);
+        break;
+    case 3:
+        mult = a * b;
+        printf("Resultado: %.2f\n", mult);
+        fprintf(historico, "%.2f * %.2f = %.2f\n", a, b, mult);
+        break;
+    case 4:
+    if (b == 0)
     {
-        imprimirf("Erro: Divisão por 0!\n");
-        fprintf(histórico, "%.2f / %.2f = Erro (divisão por zero)\n", a, b);
-    } outro {
-        imprimirf("Resultado: %.2lf\n", (duplo)a / b);
- fprintf(histórico, "%.2f / %.2f = %.2lf\n", a, b, (duplo)a / b);
+        printf("Erro: Divisao por 0!\n");
+        fprintf(historico, "%.2f / %.2f = Erro (divisao por zero)\n", a, b);
+    } else {
+        printf("Resultado: %.2lf\n", (double)a / b);
+        fprintf(historico, "%.2f / %.2f = %.2lf\n", a, b, (double)a / b);
     }
- quebrar;
- caso 5:
-    se (zumbir < 0) {
-        imprimirf("Erro: raiz de número negativo!\n");
-        fprintf(histórico, "sqrt(%.2f) = Erro (numero negativo)\n", a);
-    } outro {
-        imprimirf("Resultado: %.2f\n", sqrt(a));
- fprintf(histórico, "sqrt(%.2f) = %.2f\n", a, sqrt(a));
+    break;
+    case 5:
+    if (a < 0) {
+        printf("Erro: raiz de numero negativo!\n");
+        fprintf(historico, "sqrt(%.2f) = Erro (numero negativo)\n", a);
+    } else {
+        printf("Resultado: %.2f\n", sqrt(a));
+        fprintf(historico, "sqrt(%.2f) = %.2f\n", a, sqrt(a));
     }
- quebrar;
- caso 6:
-    imprimirf("Resultado: %.2f\n", pow(a, b));
-    fprintf(histórico, "%.2f ^ %.2f = %.2f\n", a, b, pow(a, b));
- quebrar;
+    break;
+    case 6:
+    printf("Resultado: %.2f\n", pow(a, b));
+    fprintf(historico, "%.2f ^ %.2f = %.2f\n", a, b, pow(a, b));
+    break;
 }
-    imprimirf("\nDeseja calcular recentemente? (s/n): ");
+    printf("\nDeseja calcular novamente? (s/n): ");
     scanf(" %c", &continuar);
-    LimparBuffer();
+    limparBuffer();
     limparTela();
 
-    } enquanto (contínuo == 's');
+    } while (continuar == 's');
 
- Fechar(histórico);
-    imprimirf("\nComeu logotipo!\n");
- retornar 0;
+    fclose(historico);
+    printf("\nAte Logo!\n");
+    return 0;
 }
