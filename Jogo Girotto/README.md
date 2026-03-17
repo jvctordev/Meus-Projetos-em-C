@@ -87,5 +87,5 @@ JogoGirotto/
 
 ## 👨‍💻 Autor
 
-Desenvolvido por **Girotto**  
+Desenvolvido por **João Victor E Lucas Okiyama**  
 Projeto de aprendizado em linguagem C 🚀
