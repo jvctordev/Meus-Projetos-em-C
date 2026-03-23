@@ -10,6 +10,7 @@ Minha primeira calculadora desenvolvida em C, com menu interativo e histórico d
 - Histórico de cálculos salvo em `Historico.txt`
 - Loop para realizar múltiplos cálculos sem reiniciar o programa
 - Compatível com Windows e Linux
+- Função Limpar Histórico
 
 ## Como compilar
 
@@ -30,6 +31,7 @@ gcc calculadora.c -o calculadora.exe
 3. Escolha a operação no menu
 4. O resultado aparece na tela e é salvo em `Historico.txt`
 5. Escolha se deseja calcular novamente
+6. Escolha se deseja limpar o histórico
 
 ## Aprendizados
 
