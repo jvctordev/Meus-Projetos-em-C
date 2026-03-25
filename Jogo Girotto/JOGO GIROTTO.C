@@ -1,76 +1,76 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <conio.h> //arquivo de cabeçalho, entrada significativa do console e serve pra interagir com o terminal do DOS/Windows
-#include <windows.h> //arquivo de cabeçalho, fornecido pela WinAPI, para programar diretamente no sistema operacional do Windows
-#include <tempo.h>
+#include <conio.h> //header file, significa console input e serve pra interagir com o terminal do DOS/Windows
+#include <windows.h> //header file, fornecido pela WinAPI, para programar diretamente no sistema operacional do Windows
+#include <time.h>
 #include <string.h>
 #include <ctype.h>
 
-#define CHAVE_PARA CIMA 72
-#define CHAVE_PARA BAIXO 80
-#define TECLA_ENTER 13
+#define KEY_UP       72
+#define KEY_DOWN     80
+#define KEY_ENTER    13
 #define ARROW_PREFIX 224
-//definições de constantes que representam os códigos de técnicas do técnico, quando voce pressão uma técnica, o sistema envia um código numérico 
+//definições de constantes que representam os codigos de teclas do teclado, quando voce pressiona uma tecla, o sistema envia um codigo numerico 
 
 // ===== Definição dos jogos =====
 void limparBuffer();
 void jogoPerguntaseRespostas();
-vazio jogoCobraNaCaixa();
+void jogoCobraNaCaixa();
 void jogoGousmasWar();
-vazio LimparTela(){
- #ifdef _WIN32
- sistema("cls");
- #else
- sistema("limpar");
- #endif
+void LimparTela(){
+    #ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
 }
-estrutura Gousma {
- int fúria;
- int ativa; // 1 = ativa, 0 = destruída
+struct Gousma {
+    int furia;
+    int ativa;  // 1 = ativa, 0 = destruída
 };
 // MENU DE SETAS 
 int menu(const char *titulo, const char *itens[], int total) {
- int selecionado = 0;
- int tecla;
+    int selecionado = 0;
+    int tecla;
 
- enquanto (1) {
+    while (1) {
 //rodando infinitamente ate pressionar enter
- sistema("cls");
+        system("cls");
 //sistema de limpar a tela
- printf("---------------------------------------------------\n");
- printf("%s\n", título);
- printf("---------------------------------------------------\n\n");
+        printf("---------------------------------------------------\n");
+        printf("            %s\n", titulo);
+        printf("---------------------------------------------------\n\n");
 
- para (int i = 0; i < total; i++) {
- se (i == selecionado)
- printf(" >> %s <<\n", itens[i]);
- outro
- printf("%s\n", itens[i]); //percorre os itens e dê selecionado
+        for (int i = 0; i < total; i++) {
+            if (i == selecionado)
+                printf("  >> %s <<\n", itens[i]);
+            else
+                printf("     %s\n", itens[i]); //percorre os itens e deixa selecionado
         } 
 
- printf("\n [Setas para navegar, ENTER para confirmar] \n");
+        printf("\n  [Setas para navegar, ENTER para confirmar] \n");
 
- tecla = getch();
- if (tecla == ARROW_PREFIX) { //se para uma tecla especial, le o segundo código
- tecla = getch();
- se (tecla == KEY_UP && selecionado > 0) selecionado--;
- if (tecla == KEY_DOWN & & selecionado < total - 1) selecionado++; //le a tecla pressionada, caso seja pra cima ou pra baixo
- } senão se (tecla == KEY_ENTER) {
- retornar selecionado + 1;
- } //se pressionar enter, confirme a seleção e retorna ao item escolar
+        tecla = getch();
+        if (tecla == ARROW_PREFIX) { //se for a tecla especial, le o segundo codigo
+            tecla = getch();
+            if (tecla == KEY_UP   && selecionado > 0)         selecionado--;
+            if (tecla == KEY_DOWN && selecionado < total - 1) selecionado++;  //le a tecla pressionada, caso seja pra cima ou pra baixo
+        } else if (tecla == KEY_ENTER) {
+            return selecionado + 1;
+        } //se pressionar enter, confirma a seleção e retorna ao item escolhido
     }
-} // <-- fecha o menu aqui
+}   // <-- fecha o menu aqui
 
 
-int principal() {
+int main() {
 
- srand(tempo(NULO));
+    srand(time(NULL));
 
- const char *itens[] = { //definição dos itens do menu(const char)
- "|| Perguntas e Respostas||",
- "|| Cobra na Caixa! ||",
- "|| Guerra de Gousmas ||",
- "|| Sair ||"
+    const char *itens[] = { //definição dos itens do menu(const char)
+        "||    Perguntas e Respostas||",
+        "||    Cobra na Caixa!      ||",
+        "||    Gousmas War          ||",
+        "||    Sair                 ||"
     };
 
     int pos; //declaração da variavel pos do tipo n inteiro
@@ -427,21 +427,28 @@ void jogoGousmasWar() {
                         printf("  %d - Gousma %d (DESTRUIDA)\n", g + 1, g + 1);
                 }
 
-                int doadora;
-                printf("Escolha (1-2): ");
-                scanf("%d", &doadora);
-                doadora--;
+                int doadora; //variavel para armazenar a escolha da gousma doadora
+                printf("Escolha (1-2): "); //escolha da gousma doadora
+                scanf("%d", &doadora); //armazena a escolha da gousma doadora, e o do-while garante que a escolha seja valida, ou seja, que seja 1 ou 2, e que a gousma escolhida esteja ativa
+                doadora--; //ajuste para o indice do array, já que o usuario escolhe entre 1 e 2, mas os indices do array são 0 e 1
 
-                while (doadora < 0 || doadora > 1 || !gousmas[turno][doadora].ativa) {
-                    printf("Escolha uma Gousma ativa como doadora (1-2): ");
+                while (doadora < 0 || doadora > 5 || !gousmas[turno][doadora].ativa) { //validação da escolha da gousma doadora, para garantir que o usuario escolha uma gousma ativa e dentro do intervalo de 1 a 2
+                    printf("Escolha uma Gousma ativa como doadora (1-2): "); //se a escolha for invalida, mostra essa mensagem, e o loop continua até que o usuario escolha uma gousma ativa
                     scanf("%d", &doadora);
                     doadora--;
+                }
+
+                if (gousmas[turno][doadora].furia < 2) { //verifica se a gousma doadora tem furia suficiente para dividir, ou seja, pelo menos 2, e caso não tenha, mostra essa mensagem e volta para a escolha da ação, sem passar a vez
+                    printf("Essa Gousma nao tem furia suficiente para dividir! Escolha outra acao.\n");
+                    printf("Pressione ENTER para continuar...");
+                    getchar(); getchar();
+                    continue; //volta para o inicio do loop do jogo, sem passar a vez
                 }
 
                 int receptora = 1 - doadora;  // a outra Gousma é sempre a receptora
 
                 printf("\nGousma %d (doadora): Furia = %d\n",
-                    doadora + 1, gousmas[turno][doadora].furia);
+                    doadora + 1, gousmas[turno][doadora].furia); 
 
                 if (!gousmas[turno][receptora].ativa)
                     printf("Gousma %d (receptora): DESTRUIDA — sera revivida!\n", receptora + 1);
@@ -472,56 +479,56 @@ void jogoGousmasWar() {
                 } else {
                     gousmas[turno][receptora].furia += transferir;
                     printf("\nGousma %d agora tem furia = %d!\n",
- receptor + 1, gousmas[turno][receptor].furia);
+                        receptora + 1, gousmas[turno][receptora].furia);
                 }
             }
 
- // Verifica destruições (furia > 5) em todas as Gousmas
- para (int p = 0; p < 2; p++) {
- para (int g = 0; g < 2; g++) {
- se (gousmas[p][g].ativa && gousmas[p][g].furia > 5) {
- gousmas[p][g].ativa = 0;
- printf("\nGousma %d do Jogador %d foi DESTRUIDA! (fúria = %d)\n",
- g + 1, p + 1, gousmas[p][g].furia);
+            // Verifica destruições (furia > 5) em todas as Gousmas
+            for (int p = 0; p < 2; p++) {
+                for (int g = 0; g < 2; g++) {
+                    if (gousmas[p][g].ativa && gousmas[p][g].furia > 5) {
+                        gousmas[p][g].ativa = 0;
+                        printf("\nGousma %d do Jogador %d foi DESTRUIDA! (furia = %d)\n",
+                            g + 1, p + 1, gousmas[p][g].furia);
                     }
                 }
             }
 
- // Verifica se algo jogador perdido (como 2 Gousmas destruídas)
- para (int p = 0; p < 2; p++) {
- se (!gousmas[p][0].ativa && !gousmas[p][1].ativa) {
- LimparTela();
- printf("=============================\n");
- printf(" FIM DE JOGO!\n");
- printf("=============================\n\n");
- printf("Jogador %d perdi todas as Gousmas!\n", p + 1);
- printf("JOGADOR %d VENCEU!\n\n", (1 - p) + 1);
- jogoAtivo = 0;
+            // Verifica se algum jogador perdeu (as 2 Gousmas destruídas, se perdeu encerra o jogo e o outro jogador venceu)
+            for (int p = 0; p < 2; p++) {
+                if (!gousmas[p][0].ativa && !gousmas[p][1].ativa) {
+                    LimparTela();
+                    printf("=============================\n");
+                    printf("       FIM DE JOGO!\n");
+                    printf("=============================\n\n");
+                    printf("Jogador %d perdeu todas as Gousmas!\n", p + 1);
+                    printf("JOGADOR %d VENCEU!\n\n", (1 - p) + 1);
+                    jogoAtivo = 0;
                 }
             }
 
- // Só troca o turno e pausa se o jogo ainda está ativo
- se (jogoAtivo) {
- printf("\nPressione ENTER para continuar...");
- getchar(); getchar();
- turno = 1 - turno;
+            // Só troca o turno e pausa se o jogo ainda estiver ativo
+            if (jogoAtivo) {
+                printf("\nPressione ENTER para continuar..."); //pausa para o jogador ver o resultado da sua ação antes de passar a vez, e o turno só muda se o jogo ainda estiver ativo, ou seja, se ninguém perdeu todas as gousmas
+                getchar(); getchar();
+                turno = 1 - turno;
             }
         }
 
- // Menu final
- printf("O que deseja fazer?\n");
- printf("1 - Jogar novamente\n");
- printf("0 - Voltar ao menu principal\n");
- printf("Escolha: ");
- getchar();
- scanf("%d", &opcao);
+        // Menu final com loop caso mude de ideia e queira jogar novamente, ou voltar ao menu principal
+        printf("O que deseja fazer?\n");
+        printf("1 - Jogar novamente\n");
+        printf("0 - Voltar ao menu principal\n");
+        printf("Escolha: ");
+        getchar();
+        scanf("%d", &opcao); //menu final do jogo, para jogar novamente ou voltar ao menu principal
 
- enquanto (opcao!= 0 && opcao!= 1) {
- printf("Opcao inválido! Digite 1 para jogar novamente ou 0 para dizer: ");
- scanf("%d", &opcao);
+        while (opcao != 0 && opcao != 1) { //loop para que o usuario digite uma opcao valida
+            printf("Opcao invalida! Digite 1 para jogar novamente ou 0 para sair: ");
+            scanf("%d", &opcao);
         }
 
- } enquanto (opcao == 1);
+    } while (opcao == 1); //loop para jogar novamente, caso o usuario escolha 1, e caso escolha 0, o jogo retorna ao menu principal
 
- LimparTela();
+    LimparTela();
 }
