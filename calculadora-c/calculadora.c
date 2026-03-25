@@ -17,6 +17,8 @@ void limparTela() {
 
 int main(){
 
+
+    system ("color 0F"); // Muda a cor do texto para verde 
     FILE *historico = fopen("Historico.txt", "a");
     if (historico == NULL) {
         printf("Erro ao abrir arquivo!\n");
@@ -59,7 +61,10 @@ int main(){
         printf("7 - Ver historico\n");
         printf("8 - Limpar historico\n");
         printf("Opcao: ");
-        scanf("%d", &opcao);
+        while (scanf("%d", &opcao) != 1) {
+            printf("Entrada invalida! Digite um numero de 1 a 8: ");
+            limparBuffer();
+        }
         limparBuffer();
 
         switch (opcao) {
@@ -84,56 +89,65 @@ int main(){
                     fprintf(historico, "%.2f / %.2f = %.2f\n", a, b, (double)a / b);
                 }
                 break;
-            caso return:
-casese (hum < 0um <  {
-                    imprimirf("Erro: raiz de número negativo!\n");
-                    fprintf(histórico, "sqrt(%.2f) = Erro (numero negativo)\n", a);
-                } outro {
-                    imprimirf("Resultado: %.2f\n", sqrt(a));
- fprintf(histórico, "sqrt(%.2f) = %.2f\n", a, sqrt(a));
+            case 5:
+                if (a < 0) {
+                    printf("Erro: raiz de numero negativo!\n");
+                    fprintf(historico, "sqrt(%.2f) = Erro (numero negativo)\n", a);
+                } else {
+                    printf("Resultado: %.2f\n", sqrt(a));
+                    fprintf(historico, "sqrt(%.2f) = %.2f\n", a, sqrt(a));
                 }
- quebrar;
- caso 6:
-                imprimirf("Resultado: %.2f\n", pow(a, b));
-                fprintf(histórico, "%.2f ^ %.2f = %.2f\n", a, b, pow(a, b));
- quebrar;
- caso 7: {
- ARQUIVO *arq = abrir("Histórico.txt", "r");
-                se (arq == NULO) {
-                    imprimirf("Historico vazio ou erro ao abrir.\n");
-                } outro {
- char linha[100];
-                    imprimirf("\n===== HISTÓRICO =====\n");
- enquanto (fgets(linha, tamanho de(linha), arq))
-                        imprimirf("%s", linha);
-                    imprimirf(====================\n");
- Fechar(arq);
+                break;
+            case 6:
+                printf("Resultado: %.2f\n", pow(a, b));
+                fprintf(historico, "%.2f ^ %.2f = %.2f\n", a, b, pow(a, b));
+                break;
+            case 7: {
+                FILE *arq = fopen("Historico.txt", "r");
+                if (arq == NULL) {
+                    printf("Historico vazio ou erro ao abrir.\n");
+                } else {
+                    char linha[100];
+                    printf("\n===== HISTORICO =====\n");
+                    while (fgets(linha, sizeof(linha), arq))
+                        printf("%s", linha);
+                    printf("=====================\n");
+                    fclose(arq);
                 }
- quebrar;
+                break;
             }
- caso 8: {
- ARQUIVO *limpar = abrir("Histórico.txt", "w");
-                se (limpar == NULO) {
-                    imprimirf("Erro ao limpar histórico!\n");
-                } outro {
-                    Fechar(limpar);
-                    imprimirf("Historico limpo com sucesso!\n");
+            case 8: {
+                FILE *limpar = fopen("Historico.txt", "w");
+                if (limpar == NULL) {
+                    printf("Erro ao limpar historico!\n");
+                } else {
+                    fclose(limpar);
+                    printf("Historico limpo com sucesso!\n");
                 }
- quebrar;
+                break;
             }
- padrão:
- imprimirf("Opcao inválido!\n");
- quebrar;
+            default:
+                printf("Opcao invalida!\n");
+                break;
         }
 
-        imprimirf("\nDeseja calcular recentemente? (s/n): ");
-        scanf(" %c", &continuar);
-        LimparBuffer();
+        do {
+            printf("\nDeseja calcular novamente? (s/n): ");
+            scanf(" %c", &continuar);
+            limparBuffer();
+            if (continuar != 's' && continuar != 'n') {
+                printf("Entrada invalida! Digite 's' para sim ou 'n' para nao.\n");
+            }
+        } while (continuar != 's' && continuar != 'n');
+
         limparTela();
 
-    } enquanto (contínuo == 's');
+    } while (continuar == 's');
 
- Fechar(histórico);
-    imprimirf("\nComeu logotipo!\n");
- retornar 0;
+    fclose(historico);
+    printf("\nAte Logo!\n");
+    printf("Pressione ENTER para sair\n");
+    limparBuffer();
+
+    return 0;
 }
