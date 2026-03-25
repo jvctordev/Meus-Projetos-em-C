@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <ctype.h>
+#include <string.h>
 
 void limparBuffer() {
     int c;
@@ -15,18 +17,42 @@ void limparTela() {
     #endif
 }
 
-int main(){
-
-
-    system ("color 0F"); // Muda a cor do texto para verde 
-    FILE *historico = fopen("Historico.txt", "a");
-    if (historico == NULL) {
-        printf("Erro ao abrir arquivo!\n");
-        return 1;
+float lerNumeroSeguro(const char *mensagem) {
+    char buffer[100];
+    float num;
+    char resto;
+    while (1) {
+        printf("%s", mensagem);
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+            if (sscanf(buffer, "%f %c", &num, &resto) == 1) {
+                return num;
+            }
+        }
+        printf("Entrada invalida! Digite um numero:\n");
     }
+}
 
-    float a;
-    float b;
+int lerInteiroSeguro(const char *mensagem) {
+    char buffer[100];
+    int num;
+    char resto;
+    while (1) {
+        printf("%s", mensagem);
+        if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+            if (sscanf(buffer, "%d %c", &num, &resto) == 1) {
+                return num;
+            }
+        }
+        printf("Entrada invalida! Digite um numero de 1 a 8:\n");
+    }
+}
+
+int main() {
+    #ifdef _WIN32
+        system("color 0F"); 
+    #endif
+
+    float a, b;
     int opcao;
     char continuar;
 
@@ -36,37 +62,37 @@ int main(){
     limparTela();
 
     do {
-
-        printf("Insira o primeiro numero: ");
-        while (scanf("%f", &a) != 1) {
-            printf("Entrada invalida! Digite um numero: ");
-            limparBuffer();
+        FILE *historico = fopen("Historico.txt", "a+");
+        if (historico == NULL) {
+            printf("Erro ao abrir arquivo!\n");
+            return 1;
         }
-        limparBuffer();
 
-        printf("Insira o segundo numero: ");
-        while (scanf("%f", &b) != 1) {
-            printf("Entrada invalida! Digite um numero: ");
-            limparBuffer();
+        a = lerNumeroSeguro("Insira o primeiro numero: ");
+        b = lerNumeroSeguro("Insira o segundo numero: ");
+
+        // LOOP DO MENU: Só sai daqui se digitar de 1 a 8
+        while (1) {
+            printf("\nEscolha uma operacao:\n");
+            printf("1 - Soma\n");
+            printf("2 - Subtracao\n");
+            printf("3 - Multiplicacao\n");
+            printf("4 - Divisao\n");
+            printf("5 - Raiz Quadrada (usa apenas o primeiro numero)\n");
+            printf("6 - Potencia\n");
+            printf("7 - Ver historico\n");
+            printf("8 - Limpar historico\n");
+            
+            opcao = lerInteiroSeguro("Opcao: ");
+
+            if (opcao >= 1 && opcao <= 8) {
+                break; // Opção válida, sai do loop do menu e vai para o switch
+            } else {
+                printf("\n[ERRO] Opcao %d inexistente! Escolha um numero entre 1 e 8.\n", opcao);
+            }
         }
-        limparBuffer();
 
-        printf("Escolha uma operacao:\n");
-        printf("1 - Soma\n");
-        printf("2 - Subtracao\n");
-        printf("3 - Multiplicacao\n");
-        printf("4 - Divisao\n");
-        printf("5 - Raiz Quadrada (usa apenas o primeiro numero)\n");
-        printf("6 - Potencia\n");
-        printf("7 - Ver historico\n");
-        printf("8 - Limpar historico\n");
-        printf("Opcao: ");
-        while (scanf("%d", &opcao) != 1) {
-            printf("Entrada invalida! Digite um numero de 1 a 8: ");
-            limparBuffer();
-        }
-        limparBuffer();
-
+        printf("\n-----------------------------\n");
         switch (opcao) {
             case 1:
                 printf("Resultado: %.2f\n", a + b);
@@ -85,8 +111,8 @@ int main(){
                     printf("Erro: Divisao por zero!\n");
                     fprintf(historico, "%.2f / %.2f = Erro (divisao por zero)\n", a, b);
                 } else {
-                    printf("Resultado: %.2f\n", (double)a / b);
-                    fprintf(historico, "%.2f / %.2f = %.2f\n", a, b, (double)a / b);
+                    printf("Resultado: %.2f\n", a / b);
+                    fprintf(historico, "%.2f / %.2f = %.2f\n", a, b, a / b);
                 }
                 break;
             case 5:
@@ -103,38 +129,33 @@ int main(){
                 fprintf(historico, "%.2f ^ %.2f = %.2f\n", a, b, pow(a, b));
                 break;
             case 7: {
-                FILE *arq = fopen("Historico.txt", "r");
-                if (arq == NULL) {
-                    printf("Historico vazio ou erro ao abrir.\n");
-                } else {
-                    char linha[100];
-                    printf("\n===== HISTORICO =====\n");
-                    while (fgets(linha, sizeof(linha), arq))
-                        printf("%s", linha);
-                    printf("=====================\n");
-                    fclose(arq);
+                rewind(historico);
+                char linha[100];
+                printf("\n===== HISTORICO =====\n");
+                int vazio = 1;
+                while (fgets(linha, sizeof(linha), historico)) {
+                    printf("%s", linha);
+                    vazio = 0;
                 }
+                if(vazio) printf("Historico vazio.\n");
+                printf("=====================\n");
                 break;
             }
-            case 8: {
-                FILE *limpar = fopen("Historico.txt", "w");
-                if (limpar == NULL) {
-                    printf("Erro ao limpar historico!\n");
-                } else {
-                    fclose(limpar);
-                    printf("Historico limpo com sucesso!\n");
-                }
-                break;
-            }
-            default:
-                printf("Opcao invalida!\n");
+            case 8:
+                fclose(historico);
+                historico = fopen("Historico.txt", "w");
+                printf("Historico limpo com sucesso!\n");
                 break;
         }
+        printf("-----------------------------\n");
+
+        fclose(historico);
 
         do {
             printf("\nDeseja calcular novamente? (s/n): ");
             scanf(" %c", &continuar);
             limparBuffer();
+            continuar = (char)tolower(continuar);
             if (continuar != 's' && continuar != 'n') {
                 printf("Entrada invalida! Digite 's' para sim ou 'n' para nao.\n");
             }
@@ -144,9 +165,7 @@ int main(){
 
     } while (continuar == 's');
 
-    fclose(historico);
-    printf("\nAte Logo!\n");
-    printf("Pressione ENTER para sair\n");
+    printf("\nAte Logo!\nPressione ENTER para sair\n");
     limparBuffer();
 
     return 0;
