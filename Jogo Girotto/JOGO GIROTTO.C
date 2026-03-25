@@ -5,6 +5,7 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h> //necessario para strtol detectar erros de conversao
 
 #define KEY_UP       72
 #define KEY_DOWN     80
@@ -28,6 +29,48 @@ struct Gousma {
     int furia;
     int ativa;  // 1 = ativa, 0 = destruída
 };
+
+/* ===================================================================
+   lerInteiro() — leitura SEGURA de inteiro
+   - Le a linha inteira com fgets (nunca trava no buffer)
+   - Rejeita letras, simbolos e entradas vazias
+   - Exibe 'msgErro' e repete ate receber um numero dentro de [min, max]
+   =================================================================== */
+int lerInteiro(int min, int max, const char *msgErro) {
+    char buf[64];
+    long val;
+    char *fim;
+
+    while (1) {
+        if (!fgets(buf, sizeof(buf), stdin)) {
+            return min; //EOF inesperado — retorna minimo como fallback
+        }
+
+        buf[strcspn(buf, "\n")] = '\0'; //remove '\n' residual
+
+        if (buf[0] == '\0') { //verifica se a string esta vazia
+            printf("%s", msgErro);
+            continue;
+        }
+
+        errno = 0;
+        val = strtol(buf, &fim, 10);
+
+        //'fim' deve apontar para o final da string (sem caracteres extras)
+        if (*fim != '\0' || errno != 0) {
+            printf("%s", msgErro);
+            continue;
+        }
+
+        if (val < min || val > max) {
+            printf("%s", msgErro);
+            continue;
+        }
+
+        return (int)val;
+    }
+}
+
 // MENU DE SETAS 
 int menu(const char *titulo, const char *itens[], int total) {
     int selecionado = 0;
@@ -121,19 +164,13 @@ void jogoPerguntaseRespostas() {
         int acertos = 0;  //definição do começo do jogo, acertos zerados
 
         for (int i = 0; i < 5; i++) {  //loop das perguntas, entre a primeira e a ultima
+            LimparTela(); //limpa a tela a cada nova pergunta
             printf("\nPergunta %d: %s\n", i+1, perguntas[i]); //percorre as 5 perguntas
             for (int j = 0; j < 4; j++) //loop das alternativas, 1,2,3 ou 4
                 printf("%s\n", alternativas[i][j]); //percorre as alternativas
 
             printf("Sua resposta (1-4): ");
-            scanf("%d", &resposta);
-            limparBuffer(); //escolha da alternativa
-
-            while (resposta < 1 || resposta > 4) {
-                printf("Opcao invalida, insira um numero de 1-4: ");
-                scanf("%d", &resposta);
-                limparBuffer();
-            } //caso o usuario coloque algo que não esta entre as alternativas
+            resposta = lerInteiro(1, 4, "Opcao invalida, insira um numero de 1-4: "); //leitura segura — rejeita letras e valores fora do intervalo
 
             correta = corretas[i];
 
@@ -156,8 +193,7 @@ void jogoPerguntaseRespostas() {
         printf("1 - Jogar novamente\n");
         printf("0 - Voltar ao menu principal\n");
         printf("Escolha: ");
-        scanf("%d", &opcao);
-        limparBuffer();
+        opcao = lerInteiro(0, 1, "Opcao invalida! Digite 0 ou 1: "); //leitura segura
         //tela de fim de jogo
     } while (opcao == 1); 
         printf("\nRetornando ao menu principal...\n"); // único do-while, fechando certo
@@ -186,14 +222,7 @@ void jogoCobraNaCaixa(){
         }
 
         printf("\nEscolha (1-7): ");
-        scanf("%d", &escolha); //armazena a escolha do jogador
-
-        while (escolha < 1 || escolha > 7){
-            printf("Opcao Invalida! Digite entre 1 e 7: "); //validação 
-            scanf("%d", &escolha);
-            limparBuffer();
-        }
-
+        escolha = lerInteiro(1, 7, "Opcao Invalida! Digite entre 1 e 7: "); //leitura segura — rejeita letras e valores fora do intervalo
 
         strcpy(jogadores[p], nomes[escolha - 1]);
     }
@@ -246,23 +275,14 @@ void jogoCobraNaCaixa(){
         }
 
         int escolha;
-        printf("\nEscolha uma caixa (1-5): "); //usuario escolhe a sua caixa
-        scanf("%d", &escolha);
-
-        while (escolha < 1 || escolha > 5){
-            printf("Opcao Invalida! Digite entre 1 e 5: "); //caso o usuario digite um numero fora da quantidade de caixas
-            scanf("%d", &escolha);
+        while (1) { //loop para garantir que o usuario escolha uma caixa valida e que ainda nao foi aberta
+            printf("\nEscolha uma caixa (1-5): ");
+            escolha = lerInteiro(1, 5, "Opcao Invalida! Digite entre 1 e 5: "); //leitura segura — rejeita letras e valores fora do intervalo
+            if (abertas[escolha - 1])
+                printf("Essa caixa ja foi aberta! Escolha outra: "); //se a caixa ja estiver aberta aparece essa mensagem
+            else
+                break;
         }
-
-        while (abertas[escolha - 1] == 1){
-            printf("Essa caixa ja foi aberta! Escolha outra: "); //se a caixa ja estiver aberta aparece essa mensagem
-                scanf("%d", &escolha);
-                while (escolha < 1 || escolha > 5) {
-                    printf("Opcao invalida! Digite entre 1 e 5: "); //caso o usuario digite novamente um numero fora do intervalo
-                    scanf("%d", &escolha);
-        }
-
-    }
 
     abertas[escolha - 1] = 1; //comando para mostrar que uma caixa foi aberta, e o loop de escolha de caixa roda enquanto a caixa escolhida for diferente de 1, ou seja, diferente do botao, e diferente de 2, ou seja, da cobra
 
@@ -296,12 +316,7 @@ void jogoCobraNaCaixa(){
         printf("0 - Voltar ao menu principal\n");
         printf("Escolha: ");
         getchar();
-        scanf("%d", &opcao); //menu final do jogo, para jogar novamente ou voltar ao menu principal
-
-        while (opcao != 0 && opcao != 1) { //loop de validação do menu final, para garantir que o usuario escolha uma opção valida
-            printf("Opcao invalida! Digite 1 para jogar novamente ou 0 para sair: ");
-            scanf("%d", &opcao);
-        }
+        opcao = lerInteiro(0, 1, "Opcao invalida! Digite 1 para jogar novamente ou 0 para sair: "); //menu final do jogo, para jogar novamente ou voltar ao menu principal
 
     } while (opcao == 1); //loop para jogar novamente, caso o usuario escolha 1, e caso escolha 0, o jogo retorna ao menu principal
 
@@ -352,12 +367,7 @@ void jogoGousmasWar() {
             printf("Escolha: ");
 
             int acao;
-            scanf("%d", &acao); //escolha da ação, atacar ou dividir
-
-            while (acao < 1 || acao > 2) { //validação da escolha da ação, para garantir que o usuario escolha uma opção valida
-                printf("Opcao invalida! Digite 1 ou 2: ");
-                scanf("%d", &acao);
-            }
+            acao = lerInteiro(1, 2, "Opcao invalida! Digite 1 ou 2: "); //leitura segura — rejeita letras e valores fora do intervalo
 
             // ──────────────────────────────────
             // AÇÃO 1 — ATACAR
@@ -375,14 +385,11 @@ void jogoGousmasWar() {
                 }
 
                 int atacante; //variavel para armazenar a escolha da gousma atacante
-                printf("Escolha (1-2): "); //escolha da gousma atacante
-                scanf("%d", &atacante); //armazena a escolha da gousma atacante, e o do-while garante que a escolha seja valida, ou seja, que seja 1 ou 2, e que a gousma escolhida esteja ativa
-                atacante--;
-
-                while (atacante < 0 || atacante > 1 || !gousmas[turno][atacante].ativa) { //validação da escolha da gousma atacante, para garantir que o usuario escolha uma gousma ativa e dentro do intervalo de 1 a 2
-                    printf("Escolha uma Gousma ativa (1-2): ");
-                    scanf("%d", &atacante);
-                    atacante--;
+                while (1) { //leitura segura com verificação de gousma ativa
+                    printf("Escolha (1-2): "); //escolha da gousma atacante
+                    atacante = lerInteiro(1, 2, "Opcao invalida! Digite 1 ou 2: ") - 1; //armazena a escolha da gousma atacante, e o do-while garante que a escolha seja valida, ou seja, que seja 1 ou 2, e que a gousma escolhida esteja ativa
+                    if (gousmas[turno][atacante].ativa) break;
+                    printf("Essa Gousma esta destruida! Escolha outra.\n");
                 }
 
                 // Escolhe Gousma alvo (deve estar ativa)
@@ -395,14 +402,11 @@ void jogoGousmasWar() {
                 }
 
                 int alvo; //variavel para armazenar a escolha da gousma alvo
-                printf("Escolha (1-2): ");
-                scanf("%d", &alvo);
-                alvo--;
-
-                while (alvo < 0 || alvo > 1 || !gousmas[adversario][alvo].ativa) { //validação da escolha da gousma alvo, para garantir que o usuario escolha uma gousma ativa do adversario e dentro do intervalo de 1 a 2
-                    printf("Escolha uma Gousma inimiga ativa (1-2): "); //se a escolha for invalida, mostra essa mensagem, e o loop continua até que o usuario escolha uma gousma ativa do
-                    scanf("%d", &alvo);
-                    alvo--;
+                while (1) { //leitura segura com verificação de gousma ativa
+                    printf("Escolha (1-2): ");
+                    alvo = lerInteiro(1, 2, "Opcao invalida! Digite 1 ou 2: ") - 1;
+                    if (gousmas[adversario][alvo].ativa) break;
+                    printf("Essa Gousma ja esta destruida! Escolha outra.\n"); //se a escolha for invalida, mostra essa mensagem, e o loop continua até que o usuario escolha uma gousma ativa do adversario
                 }
 
                 // Aplica o ataque: furia do alvo += furia do atacante
@@ -428,14 +432,11 @@ void jogoGousmasWar() {
                 }
 
                 int doadora; //variavel para armazenar a escolha da gousma doadora
-                printf("Escolha (1-2): "); //escolha da gousma doadora
-                scanf("%d", &doadora); //armazena a escolha da gousma doadora, e o do-while garante que a escolha seja valida, ou seja, que seja 1 ou 2, e que a gousma escolhida esteja ativa
-                doadora--; //ajuste para o indice do array, já que o usuario escolhe entre 1 e 2, mas os indices do array são 0 e 1
-
-                while (doadora < 0 || doadora > 5 || !gousmas[turno][doadora].ativa) { //validação da escolha da gousma doadora, para garantir que o usuario escolha uma gousma ativa e dentro do intervalo de 1 a 2
-                    printf("Escolha uma Gousma ativa como doadora (1-2): "); //se a escolha for invalida, mostra essa mensagem, e o loop continua até que o usuario escolha uma gousma ativa
-                    scanf("%d", &doadora);
-                    doadora--;
+                while (1) { //leitura segura com verificação de gousma ativa
+                    printf("Escolha (1-2): "); //escolha da gousma doadora
+                    doadora = lerInteiro(1, 2, "Opcao invalida! Digite 1 ou 2: ") - 1; //ajuste para o indice do array, já que o usuario escolhe entre 1 e 2, mas os indices do array são 0 e 1
+                    if (gousmas[turno][doadora].ativa) break;
+                    printf("Essa Gousma esta destruida! Escolha outra.\n");
                 }
 
                 if (gousmas[turno][doadora].furia < 2) { //verifica se a gousma doadora tem furia suficiente para dividir, ou seja, pelo menos 2, e caso não tenha, mostra essa mensagem e volta para a escolha da ação, sem passar a vez
@@ -459,13 +460,7 @@ void jogoGousmasWar() {
                 // Valida quantidade a transferir (mínimo 1, não pode zerar a doadora)
                 int transferir;
                 printf("Quanto transferir (1 a %d): ", gousmas[turno][doadora].furia - 1);
-                scanf("%d", &transferir);
-
-                while (transferir < 1 || transferir >= gousmas[turno][doadora].furia) {
-                    printf("Invalido! Transfira entre 1 e %d: ",
-                        gousmas[turno][doadora].furia - 1);
-                    scanf("%d", &transferir);
-                }
+                transferir = lerInteiro(1, gousmas[turno][doadora].furia - 1, "Invalido! Tente novamente: "); //leitura segura
 
                 // Aplica a divisão
                 gousmas[turno][doadora].furia -= transferir;
@@ -521,12 +516,7 @@ void jogoGousmasWar() {
         printf("0 - Voltar ao menu principal\n");
         printf("Escolha: ");
         getchar();
-        scanf("%d", &opcao); //menu final do jogo, para jogar novamente ou voltar ao menu principal
-
-        while (opcao != 0 && opcao != 1) { //loop para que o usuario digite uma opcao valida
-            printf("Opcao invalida! Digite 1 para jogar novamente ou 0 para sair: ");
-            scanf("%d", &opcao);
-        }
+        opcao = lerInteiro(0, 1, "Opcao invalida! Digite 1 para jogar novamente ou 0 para sair: "); //menu final do jogo, para jogar novamente ou voltar ao menu principal
 
     } while (opcao == 1); //loop para jogar novamente, caso o usuario escolha 1, e caso escolha 0, o jogo retorna ao menu principal
 
