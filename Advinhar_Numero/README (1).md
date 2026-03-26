@@ -86,3 +86,4 @@ Advinhar_Numero/
 ## 👨‍💻 Autor
 
 Projeto desenvolvido como parte do aprendizado de programação em C.
+Projeto pensado e desenvolvido por João Victor Dev
