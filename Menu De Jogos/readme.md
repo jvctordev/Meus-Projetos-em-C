@@ -84,6 +84,6 @@ jogos.exe
 
 ---
 
-## Autor
+## Autores
 
 Desenvolvido por João Victor e Lucas Okiyama como projeto acadêmico de Algoritmo e codificação de software.
