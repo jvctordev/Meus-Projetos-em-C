@@ -1,67 +1,89 @@
-Jogos do Girroto — 3 em 1
+# 🎮 Jogos do Girroto — 3 em 1
 
-Coleção de três minigames em C para dois jogadores (ou um jogador contra as perguntas), desenvolvida como trabalho acadêmico. O programa roda no terminal do Windows e apresenta um menu interativo navegável por setas do teclado.
-Jogos disponíveis
-1. Perguntas e Respostas
+Projeto desenvolvido como trabalho acadêmico, um conjunto de três minijogos
+de terminal desenvolvidos em linguagem C, com navegação por menu interativo
+usando teclas de seta.
 
-Quiz de cultura geral com 5 perguntas de múltipla escolha (4 alternativas cada). O jogador responde todas as perguntas em sequência e ao final recebe sua pontuação de acertos.
-2. Cobra na Caixa
+---
 
-Jogo para dois jogadores. Cada um escolhe um "Explorador" (personagens com nomes do Egito Antigo) e se revezam abrindo caixas em busca de um botão que abre a saída da tumba — mas uma das caixas esconde uma cobra. Quem encontrar o botão vence; quem encontrar a cobra perde.
-3. Gousmas War
+## Jogos disponíveis
 
-Jogo de estratégia para dois jogadores baseado em "Chopsticks". Cada jogador controla duas criaturas chamadas Gousmas, cada uma com um valor de Fúria. Os jogadores se alternam escolhendo entre duas ações:
+**1. Perguntas e Respostas**
+Quiz com 5 perguntas de cultura geral, cada uma com 4 alternativas. Ao final,
+o jogador vê sua pontuação e pode jogar novamente.
 
-    Atacar — soma a Fúria de uma Gousma própria à Fúria de uma Gousma inimiga.
-    Dividir — redistribui Fúria entre as próprias Gousmas (podendo reviver uma destruída).
+**2. Cobra na Caixa**
+Jogo para 2 jogadores. Há 5 caixas: uma esconde um botão (vitória) e outra
+esconde uma cobra (derrota). Os jogadores se revezam abrindo caixas até
+alguém encontrar o botão ou a cobra. Cada jogador escolhe um explorador com
+nome temático do Egito Antigo.
 
-Uma Gousma é destruída quando sua Fúria ultrapassa 5. Perde quem tiver as duas Gousmas destruídas.
-Requisitos
+**3. Gousmas War**
+Jogo de estratégia para 2 jogadores. Cada jogador controla 2 Gousmas, criaturas
+com um atributo de Fúria iniciando em 1. A cada turno, o jogador pode atacar
+uma Gousma inimiga (transferindo fúria) ou dividir fúria entre suas próprias
+Gousmas. Gousmas com fúria acima de 5 são destruídas. Vence quem destruir
+todas as Gousmas do adversário.
 
-    Sistema operacional Windows
-    Compilador C com suporte a C99 ou superior (ex.: GCC via MinGW, MSVC)
+---
 
-    O projeto usa as bibliotecas conio.h e windows.h, que são exclusivas do ambiente Windows.
+## Como compilar e executar
 
-Como compilar e executar
+O projeto foi desenvolvido para Windows, pois utiliza as bibliotecas `conio.h`
+e `windows.h`.
 
-Usando GCC (MinGW):
-bash
-Copiar
+**Pré-requisito:** compilador GCC (recomendado via MinGW).
 
-gcc -std=c99 -o jogos jogos.c
+```bash
+gcc jogos.c -o jogos.exe
 ./jogos.exe
+```
 
-Ou pelo próprio terminal do Windows:
-bash
-Copiar
+Ou pelo prompt de comando do Windows:
 
+```cmd
 gcc jogos.c -o jogos.exe
 jogos.exe
+```
 
-Estrutura do código
+---
 
-jogos.c
-│
-├── main()                    — Inicializa o gerador aleatório e exibe o menu principal
-├── menu()                    — Menu navegável com setas ↑↓ e ENTER
-├── lerInteiro()              — Leitura segura de inteiros (rejeita letras e valores fora do intervalo)
-├── limparBuffer()            — Limpa o buffer de entrada do teclado
-├── LimparTela()              — Limpa o terminal (compatível com Windows)
-│
-├── jogoPerguntaseRespostas() — Lógica do quiz de perguntas e respostas
-├── jogoCobraNaCaixa()        — Lógica do jogo Cobra na Caixa
-└── jogoGousmasWar()          — Lógica do Gousmas War (struct Gousma)
+## Tecnologias e bibliotecas utilizadas
 
-Decisões técnicas relevantes
-Recurso 	Motivo
-fgets + strtol em lerInteiro() 	Evita travamento do buffer e rejeita entradas inválidas com segurança
-srand(time(NULL)) 	Garante aleatoriedade diferente a cada execução
-getch() + códigos de seta 	Permite navegação no menu sem precisar pressionar ENTER
-struct Gousma 	Agrupa os atributos furia e ativa de cada criatura em uma única estrutura
-do-while nos menus finais 	Permite ao jogador reiniciar a partida sem voltar ao menu principal
+- Linguagem C (padrão C99)
+- `stdio.h` — entrada e saída padrão
+- `stdlib.h` — funções gerais como `rand()`, `srand()` e `system()`
+- `conio.h` — leitura de teclas no terminal (Windows)
+- `windows.h` — integração com a WinAPI
+- `time.h` — semente para geração de números aleatórios
+- `string.h` — manipulação de strings
+- `ctype.h` — classificação de caracteres
+- `errno.h` — detecção de erros na conversão de inteiros com `strtol`
 
+---
 
-Autores: João Victor Quaresma e Lucas Okiyama
+## Funcionalidades técnicas de destaque
 
-Trabalho acadêmico desenvolvido para a disciplina de Algorimo e codificação de software — [CESUPA ARGO].
+- Menu navegável com teclas de seta (cima/baixo) e confirmação com Enter
+- Leitura segura de inteiros via `lerInteiro()`, que rejeita letras, símbolos
+  e entradas vazias, exibindo mensagens de erro personalizadas
+- Geração de posições aleatórias garantindo que botão e cobra nunca ocupem
+  a mesma caixa no jogo Cobra na Caixa
+- Lógica de reviver Gousmas destruídas através da ação de dividir fúria
+- Loop `do-while` em todos os jogos permitindo jogar novamente sem reiniciar
+  o programa
+
+---
+
+## Compatibilidade
+
+| Sistema Operacional | Compatível |
+|---------------------|------------|
+| Windows             | ✅ Sim     |
+| Linux / macOS       | ❌ Não (depende de `conio.h` e `windows.h`) |
+
+---
+
+## Autor
+
+Desenvolvido por João Victor e Lucas Okiyama como projeto acadêmico de Algoritmo e codificação de software.
